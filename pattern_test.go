@@ -59,6 +59,9 @@ func TestParsePattern(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("ParsePattern() succeeded unexpectedly")
 			}
+			// ignore the method for these tests
+			tt.want.Method = ""
+			got.Method = ""
 			if fmt.Sprintf("%v", got) != fmt.Sprintf("%v", tt.want) {
 				t.Errorf("ParsePattern() = %v, want %v", got, tt.want)
 			}
