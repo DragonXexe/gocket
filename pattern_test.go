@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"webserver1/gocket"
+	"github.com/DragonXexe/gocket"
 )
 
 func must[T any](v T, err error) T {
