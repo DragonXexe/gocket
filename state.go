@@ -30,19 +30,11 @@ func (s *SafeState[T]) Update(fn func(*T)) {
 }
 
 func (g *Gocket) ManageState(name string, value any) {
-	g.state[name] = &SafeState[any]{sync.Mutex{}, value}
+	g.state[name] = value
 }
 
 // State returns nil if the state is not present
-func (ctx *GocketCtx) State(name string) *SafeState[any] {
-	state, ok := ctx.localState[name]
-	if ok {
-		return state.(*SafeState[any])
-	}
-	return ctx.gocket.state[name].(*SafeState[any])
-}
-
-func (ctx *GocketCtx) anyState(name string) any {
+func (ctx *GocketCtx) State(name string) any {
 	state, ok := ctx.localState[name]
 	if ok {
 		return state
@@ -51,15 +43,15 @@ func (ctx *GocketCtx) anyState(name string) any {
 }
 
 func (ctx *GocketCtx) SetLocalState(name string, val any) {
-	ctx.localState[name] = &SafeState[any]{sync.Mutex{}, val}
+	ctx.localState[name] = val
 }
 
-func GetState[T any](ctx *GocketCtx, state string) *SafeState[T] {
-	s := ctx.anyState(state)
+func GetState[T any](ctx *GocketCtx, state string) T {
+	s := ctx.State(state)
 	if s == nil {
 		panic(fmt.Sprintf("State was not present: %s", state))
 	}
-	val, ok := s.(*SafeState[T])
+	val, ok := s.(T)
 	if !ok {
 		// This variable exists for printing T
 		var t T

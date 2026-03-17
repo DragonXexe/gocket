@@ -11,7 +11,6 @@ import (
 type Gocket struct {
 	// This tree is build from
 	routes radixTree
-	// See comment on `gocket.GocketCtx.localState`
 	state    map[string]any
 	contexts sync.Pool
 }

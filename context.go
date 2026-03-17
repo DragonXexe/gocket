@@ -13,8 +13,6 @@ type GocketCtx struct {
 	Req           *Request
 	writer        http.ResponseWriter
 	origalRequest *http.Request
-	// actually of type map[string]*SafeState[any]
-	// but for typecasting it is any
 	localState    map[string]any
 }
 
