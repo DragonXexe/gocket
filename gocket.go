@@ -71,7 +71,7 @@ func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) 
 			} else if code == middleWareBlock {
 				response := res.reason()
 				writeResponse(&ctx, response)
-				continue
+				return
 			}
 		}
 		fmt.Println("Matched request")
