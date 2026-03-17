@@ -13,10 +13,15 @@ type GocketCtx struct {
 	Req           *Request
 	writer        http.ResponseWriter
 	origalRequest *http.Request
+	// actually of type map[string]*SafeState[any]
+	// but for typecasting it is any
+	localState    map[string]any
 }
+
 func (ctx *GocketCtx) Context() context.Context {
 	return ctx.context
 }
+
 func (ctx *GocketCtx) reset(g *Gocket, req *Request, writer http.ResponseWriter, originalRequest *http.Request) {
 	context, cancel := context.WithTimeout(originalRequest.Context(), time.Minute)
 	ctx.gocket = g
@@ -25,4 +30,5 @@ func (ctx *GocketCtx) reset(g *Gocket, req *Request, writer http.ResponseWriter,
 	ctx.Req = req
 	ctx.writer = writer
 	ctx.origalRequest = originalRequest.WithContext(context)
+	ctx.localState = map[string]any{}
 }

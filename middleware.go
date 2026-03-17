@@ -8,34 +8,58 @@ func (group *Group) AddMiddleWare(middleWare MiddleWare) {
 	group.middleWares = append(group.middleWares, middleWare)
 }
 
+type middleWareResultCode uint
+
+const (
+	middleWarePass middleWareResultCode = iota
+	middleWareSkip
+	middleWareBlock
+)
+
 type MiddleWareResult interface {
-	IsPass() bool
-	Blocked() (Response, bool)
+	code() middleWareResultCode
+	// may return nil if their is no reason
+	reason() Response
 }
+
 type blocked struct {
 	response Response
 }
 
-func (b blocked) Blocked() (Response, bool) {
-	return b.response, true
+func (b blocked) code() middleWareResultCode {
+	return middleWareBlock
 }
 
-func (b blocked) IsPass() bool {
-	return false
+func (b blocked) reason() Response {
+	return b.response
 }
 
 type pass struct{}
 
-func (p pass) Blocked() (Response, bool) {
-	return nil, false
+func (p pass) code() middleWareResultCode {
+	return middleWarePass
 }
 
-func (p pass) IsPass() bool {
-	return true
+func (p pass) reason() Response {
+	return nil
+}
+
+type skip struct{}
+
+func (s skip) code() middleWareResultCode {
+	return middleWareSkip
+}
+
+func (s skip) reason() Response {
+	return nil
 }
 
 func Pass() MiddleWareResult {
 	return pass{}
+}
+
+func Skip() MiddleWareResult {
+	return skip{}
 }
 
 func Block(response Response) MiddleWareResult {

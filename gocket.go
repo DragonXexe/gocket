@@ -10,7 +10,8 @@ import (
 
 type Gocket struct {
 	// This tree is build from
-	routes   radixTree
+	routes radixTree
+	// See comment on `gocket.GocketCtx.localState`
 	state    map[string]any
 	contexts sync.Pool
 }
@@ -43,6 +44,15 @@ func (g *Gocket) Run(port string) {
 }
 
 func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("Route panicked: %s\n", err)
+			responder.WriteHeader(500)
+			responder.Write([]byte("internal server error"))
+			return
+		}
+	}()
+
 	possiblePaths := g.routes.matchPath(splitPathToParts(rawReq.URL.Path))
 
 	for _, route := range possiblePaths {
@@ -53,20 +63,15 @@ func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) 
 		ctx := g.contexts.Get().(GocketCtx)
 		ctx.reset(g, &req, responder, rawReq)
 
-		defer func() {
-			if err := recover(); err != nil {
-				fmt.Printf("Route panicked: %s\n", err)
-				responder.WriteHeader(500)
-				responder.Write([]byte("internal server error"))
-				return
-			}
-		}()
 		for _, middleWare := range route.middleWares {
 			res := middleWare(&ctx)
-			response, isBlocked := res.Blocked()
-			if isBlocked {
+			code := res.code()
+			if code == middleWareSkip {
+				break
+			} else if code == middleWareBlock {
+				response := res.reason()
 				writeResponse(&ctx, response)
-				return
+				continue
 			}
 		}
 		fmt.Println("Matched request")
