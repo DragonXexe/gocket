@@ -1,6 +1,7 @@
 package gocket
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -24,7 +25,7 @@ func (group *Group) Handle(method string, pattern string, handler Handler) {
 	if err != nil {
 		panic(err)
 	}
-	for _, prefix := range group.prefix {
+	for _, prefix := range slices.Backward(group.prefix) {
 		parsedPattern.Path.Parts = insert(parsedPattern.Path.Parts, 0, PathElement{
 			Wildcard: false,
 			Name:     prefix,
