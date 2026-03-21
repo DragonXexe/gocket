@@ -44,7 +44,7 @@ func (g *Gocket) Run(port string) {
 func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
-			LogError("Route panicked: %s\n", err)
+			LogErrorf("Route panicked: %s\n", err)
 			responder.WriteHeader(500)
 			responder.Write([]byte("internal server error"))
 			return

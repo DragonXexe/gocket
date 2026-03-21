@@ -49,7 +49,11 @@ func LogWarning(s string, a ...any) {
 	printLog(yellow, message)
 }
 
-func LogError(s string, a ...any) {
+func LogError(err error) {
+	printLog(red, err.Error())
+}
+
+func LogErrorf(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
 	printLog(red, message)
 }
