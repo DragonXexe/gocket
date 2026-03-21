@@ -23,13 +23,15 @@ func DebugPrint(v any) {
 
 func printLog(color string, message string) {
 	_, file, _, _ := runtime.Caller(2)
-	parts := strings.Split(file, "/")
-	if len(parts) > 2 {
-		parts = parts[len(parts)-2:]
-	}
-	short := strings.Join(parts, "/")
 
-	fmt.Printf("%s[%s]%s %s\n", color, short, reset, message)
+	pkg := filepath.Base(filepath.Dir(file))
+	base := filepath.Base(file)
+
+	// Strip the @v0.0.0-... version suffix from the package dir.
+	if i := strings.Index(pkg, "@"); i != -1 {
+		pkg = pkg[:i]
+	}
+	fmt.Printf("%s[%s/%s]%s %s\n", color, pkg, base, reset, message)
 }
 
 func LogSuccess(s string, a ...any) {
