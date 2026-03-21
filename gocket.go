@@ -10,7 +10,7 @@ import (
 
 type Gocket struct {
 	// This tree is build from
-	routes radixTree
+	routes   radixTree
 	state    map[string]any
 	contexts sync.Pool
 }
@@ -33,11 +33,10 @@ func (g *Gocket) AddRoute(route Route) {
 
 func (g *Gocket) Run(port string) {
 	addr := fmt.Sprintf("0.0.0.0:%s", port)
-	fmt.Printf("Mounting on %s\n", addr)
-	fmt.Println("Routes:")
+	LogInfo("Mounting on %s\n", addr)
+	LogInfo("Routes:")
 	for route := range g.routes.Routes() {
-		fmt.Print("    ")
-		fmt.Println(route.Pattern.String())
+		LogInfo("    %s", route.Pattern.String())
 	}
 	http.ListenAndServe(addr, g)
 }
@@ -45,12 +44,14 @@ func (g *Gocket) Run(port string) {
 func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("Route panicked: %s\n", err)
+			LogError("Route panicked: %s\n", err)
 			responder.WriteHeader(500)
 			responder.Write([]byte("internal server error"))
 			return
 		}
 	}()
+
+	debugPrintRequest(rawReq)
 
 	possiblePaths := g.routes.matchPath(splitPathToParts(rawReq.URL.Path))
 
@@ -69,12 +70,13 @@ func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) 
 				break
 			} else if code == middleWareBlock {
 				response := res.reason()
+				debugPrintMiddlewareBlockRes(response)
 				writeResponse(&ctx, response)
 				return
 			}
 		}
-		fmt.Println("Matched request")
 		response := route.Handler(&ctx)
+		debugPrintMatched(response)
 		writeResponse(&ctx, response)
 		return
 
@@ -92,7 +94,7 @@ func writeResponse(ctx *GocketCtx, response Response) {
 }
 
 func writeNotFound(writer http.ResponseWriter) {
-	fmt.Println("Failed to match request")
+	debugPrintNotFound()
 	writer.WriteHeader(404)
 	writer.Write([]byte("Page Not Found"))
 }

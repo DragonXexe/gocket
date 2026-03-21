@@ -35,7 +35,6 @@ func (j jSONResponse[T]) Content() []byte {
 	if err != nil {
 		panic(err)
 	}
-	println(string(bytes))
 	return bytes
 }
 
