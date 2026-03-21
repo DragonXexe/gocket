@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -20,27 +21,33 @@ func DebugPrint(v any) {
 	fmt.Printf("[%s:%d] %#v\n", file, line, v)
 }
 
+func printLog(color string, message string) {
+	_, file, _, _ := runtime.Caller(2)
+	parts := strings.Split(file, "/")
+	if len(parts) > 2 {
+		parts = parts[len(parts)-2:]
+	}
+	short := strings.Join(parts, "/")
+
+	fmt.Printf("%s[%s]%s %s\n", color, short, reset, message)
+}
+
+func LogSuccess(s string, a ...any) {
+	message := fmt.Sprintf(s, a...)
+	printLog(green, message)
+}
+
 func LogInfo(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	_, file, _, _ := runtime.Caller(1)
-	pkg := filepath.Base(filepath.Dir(file))
-	base := filepath.Base(file)
-
-	fmt.Printf("%s[%s/%s]%s %s\n", blue, pkg, base, reset, message)
+	printLog(blue, message)
 }
+
 func LogWarning(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	_, file, _, _ := runtime.Caller(1)
-	pkg := filepath.Base(filepath.Dir(file))
-	base := filepath.Base(file)
-
-	fmt.Printf("%s[%s/%s]%s %s\n", yellow, pkg, base, reset, message)
+	printLog(yellow, message)
 }
+
 func LogError(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	_, file, _, _ := runtime.Caller(1)
-	pkg := filepath.Base(filepath.Dir(file))
-	base := filepath.Base(file)
-
-	fmt.Printf("%s[%s/%s]%s %s\n", red, pkg, base, reset, message)
+	printLog(red, message)
 }
