@@ -26,14 +26,13 @@ func printLog(color string, level string, message string) {
 	_, file, _, _ := runtime.Caller(2)
 
 	pkg := filepath.Base(filepath.Dir(file))
-	base := filepath.Base(file)
 
 	// Strip the @v0.0.0-... version suffix from the package dir.
 	if i := strings.Index(pkg, "@"); i != -1 {
 		pkg = pkg[:i]
 	}
 	timeString := time.Now().Format("15:04:05")
-	fmt.Printf("[%s] %s[%s]%s [%s/%s] %s\n", timeString, color, level, reset, pkg, base, message)
+	fmt.Printf("[%s] %s[%s]%s [%s] %s\n", timeString, color, level, reset, pkg, message)
 }
 
 func LogSuccess(s string, a ...any) {
