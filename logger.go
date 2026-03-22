@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 const (
@@ -21,7 +22,7 @@ func DebugPrint(v any) {
 	fmt.Printf("[%s:%d] %#v\n", file, line, v)
 }
 
-func printLog(color string, message string) {
+func printLog(color string, level string, message string) {
 	_, file, _, _ := runtime.Caller(2)
 
 	pkg := filepath.Base(filepath.Dir(file))
@@ -31,29 +32,30 @@ func printLog(color string, message string) {
 	if i := strings.Index(pkg, "@"); i != -1 {
 		pkg = pkg[:i]
 	}
-	fmt.Printf("%s[%s/%s]%s %s\n", color, pkg, base, reset, message)
+	timeString := time.Now().Format("15:04:05")
+	fmt.Printf("[%s] %s[%s]%s [%s/%s] %s\n", timeString, color, level, reset, pkg, base, message)
 }
 
 func LogSuccess(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	printLog(green, message)
+	printLog(green, "SUC", message)
 }
 
 func LogInfo(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	printLog(blue, message)
+	printLog(blue, "INF", message)
 }
 
 func LogWarning(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	printLog(yellow, message)
+	printLog(yellow, "WRN", message)
 }
 
 func LogError(err error) {
-	printLog(red, err.Error())
+	printLog(red, "ERR", err.Error())
 }
 
 func LogErrorf(s string, a ...any) {
 	message := fmt.Sprintf(s, a...)
-	printLog(red, message)
+	printLog(red, "ERR", message)
 }
