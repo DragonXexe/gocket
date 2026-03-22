@@ -9,7 +9,11 @@ func debugPrintRequest(req *http.Request) {
 }
 
 func debugPrintMatched(response Response) {
-	LogInfo("  >> handler responded: %d", response.StatusCode())
+	if response != nil {
+		LogInfo("  >> handler responded: %d", response.StatusCode())
+	} else {
+		LogInfo("  >> handler responded: <unkown-res>")
+	}
 }
 
 func debugPrintMiddlewareBlockRes(reason Response) {
