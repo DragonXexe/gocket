@@ -5,6 +5,7 @@ package gocket
 import (
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"sync"
 )
 
@@ -44,7 +45,7 @@ func (g *Gocket) Run(port string) {
 func (g *Gocket) ServeHTTP(responder http.ResponseWriter, rawReq *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
-			LogErrorf("Route panicked: %s", err)
+			LogErrorf("Route panicked: %s\n%s", err, debug.Stack())
 			if _, ok := responder.(http.Hijacker); !ok {
 				responder.WriteHeader(500)
 				responder.Write([]byte("internal server error"))
