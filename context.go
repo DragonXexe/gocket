@@ -21,7 +21,7 @@ func (ctx *GocketCtx) Context() context.Context {
 }
 
 func (ctx *GocketCtx) reset(g *Gocket, req *Request, writer http.ResponseWriter, originalRequest *http.Request) {
-	context, cancel := context.WithTimeout(originalRequest.Context(), time.Minute)
+	context, cancel := context.WithTimeout(originalRequest.Context(), 30*time.Minute)
 	ctx.gocket = g
 	ctx.context = context
 	ctx.cancel = cancel
