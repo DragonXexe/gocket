@@ -6,8 +6,10 @@ import (
 
 type WebSockHandler func(con *websocket.Conn)
 
-func (ctx *GocketCtx) UpgradeWebsocket(handler WebSockHandler) error {
-	con, err := websocket.Accept(ctx.writer, ctx.origalRequest, nil)
+func (ctx *GocketCtx) UpgradeWebsocket(handler WebSockHandler, subProtocols []string) error {
+	con, err := websocket.Accept(ctx.writer, ctx.origalRequest, &websocket.AcceptOptions{
+		Subprotocols: subProtocols,
+	})
 	if err != nil {
 		return err
 	}
